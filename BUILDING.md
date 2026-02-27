@@ -8,7 +8,7 @@ Before you begin, ensure you have:
 - macOS 14.4 or later
 - Xcode (latest version recommended)
 - Swift (latest version recommended)
-- Git (for cloning repositories)
+- `curl` and `unzip` (pre-installed on macOS)
 
 ## Quick Start with Makefile (Recommended)
 
@@ -31,7 +31,7 @@ make dev
 ### Available Makefile Commands
 
 - `make check` or `make healthcheck` - Verify all required tools are installed
-- `make whisper` - Clone and build whisper.cpp XCFramework automatically
+- `make whisper` - Download pre-built whisper.xcframework from GitHub releases
 - `make setup` - Prepare the whisper framework for linking
 - `make build` - Build the VoiceInk Xcode project
 - `make local` - Build for local use (no Apple Developer certificate needed)
@@ -45,10 +45,12 @@ make dev
 
 The Makefile automatically:
 1. **Manages Dependencies**: Creates a dedicated `~/VoiceInk-Dependencies` directory for all external frameworks
-2. **Builds Whisper Framework**: Clones whisper.cpp and builds the XCFramework with the correct configuration
+2. **Downloads Whisper Framework**: Downloads the pre-built whisper.xcframework from GitHub releases (no compilation needed)
 3. **Handles Framework Linking**: Sets up the whisper.xcframework in the proper location for Xcode to find
-4. **Verifies Prerequisites**: Checks that git, xcodebuild, and swift are installed before building
+4. **Verifies Prerequisites**: Checks that curl, unzip, xcodebuild, and swift are installed before building
 5. **Streamlines Development**: Provides convenient shortcuts for common development tasks
+
+> **Note:** To pin a specific whisper.cpp version, override `WHISPER_VERSION`: `make whisper WHISPER_VERSION=v1.8.2`
 
 This approach ensures consistent builds across different machines and eliminates manual framework setup errors.
 
@@ -80,17 +82,20 @@ Your normal `make all` / `make build` commands are completely unaffected.
 
 ## Manual Build Process (Alternative)
 
-If you prefer to build manually or need more control over the build process, follow these steps:
+If you prefer to set up manually or need more control, follow these steps:
 
-### Building whisper.cpp Framework
+### Downloading whisper.xcframework
 
-1. Clone and build whisper.cpp:
 ```bash
-git clone https://github.com/ggerganov/whisper.cpp.git
-cd whisper.cpp
-./build-xcframework.sh
+VERSION=v1.8.3
+mkdir -p ~/VoiceInk-Dependencies/whisper.cpp/build-apple
+curl -L -o /tmp/whisper-xcframework.zip \
+  https://github.com/ggml-org/whisper.cpp/releases/download/${VERSION}/whisper-${VERSION}-xcframework.zip
+unzip /tmp/whisper-xcframework.zip -d ~/VoiceInk-Dependencies/whisper.cpp/build-apple
+rm /tmp/whisper-xcframework.zip
 ```
-This will create the XCFramework at `build-apple/whisper.xcframework`.
+
+This places the framework at `~/VoiceInk-Dependencies/whisper.cpp/build-apple/whisper.xcframework`, the path the Xcode project expects.
 
 ### Building VoiceInk
 
@@ -100,11 +105,7 @@ git clone https://github.com/Beingpax/VoiceInk.git
 cd VoiceInk
 ```
 
-2. Add the whisper.xcframework to your project:
-   - Drag and drop `../whisper.cpp/build-apple/whisper.xcframework` into the project navigator, or
-   - Add it manually in the "Frameworks, Libraries, and Embedded Content" section of project settings
-
-3. Build and Run
+2. Build and Run
    - Build the project using Cmd+B or Product > Build
    - Run the project using Cmd+R or Product > Run
 
