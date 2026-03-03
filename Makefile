@@ -6,9 +6,11 @@ FRAMEWORK_PATH := $(WHISPER_CPP_DIR)/build-apple/whisper.xcframework
 WHISPER_VERSION    := v1.8.3
 WHISPER_XCFW_URL   := https://github.com/ggml-org/whisper.cpp/releases/download/$(WHISPER_VERSION)/whisper-$(WHISPER_VERSION)-xcframework.zip
 
+.DEFAULT_GOAL := help
+
 .PHONY: all clean distclean whisper setup build local install check healthcheck help dev run
 
-# Default target
+# Full build (signed)
 all: check build
 
 # Development workflow
@@ -127,6 +129,6 @@ help:
 	@echo "  install            Copy build/VoiceInk.app to ~/Applications"
 	@echo "  run                Launch the built VoiceInk app"
 	@echo "  dev                Build and run the app (for development)"
-	@echo "  all                Run full build process (default)"
+	@echo "  all                Run full build process (requires Apple Developer certificate)"
 	@echo "  clean              Remove build artifacts"
 	@echo "  help               Show this help message"
